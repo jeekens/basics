@@ -135,3 +135,47 @@ if (! function_exists('env')) {
         return $value;
     }
 }
+
+if (! function_exists('can_each')) {
+    /**
+     * 判断变量是否可被foreach处理
+     *
+     * @param $value
+     *
+     * @return bool
+     */
+    function can_each($value): bool
+    {
+        return is_array($value) || $value instanceof Traversable;
+    }
+}
+
+if (! function_exists('class_init')) {
+    /**
+     * 对象快速初始化助手函数
+     *
+     * @param object $object
+     * @param array|Traversable $options
+     *
+     * @return object
+     */
+    function class_init(object $object, $options)
+    {
+        foreach ($options as $property => $value) {
+            if (is_numeric($property)) {
+                continue;
+            }
+
+            $setter = 'set' . $property;
+            // has setter
+            if (method_exists($object, $setter)) {
+                $object->$setter($value);
+            } elseif (property_exists($object, $property)) {
+                $object->$property = $value;
+            }
+        }
+
+        return $object;
+    }
+
+}
