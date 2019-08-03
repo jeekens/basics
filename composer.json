@@ -1,0 +1,29 @@
+{
+  "name": "jeekens/basics",
+  "type": "library",
+  "version": "v0.0.1",
+  "keywords": [
+    "php",
+    "swoole",
+    "jeekens",
+    "basics"
+  ],
+  "description": "jeekens basics component",
+  "license": "Apache-2.0",
+  "require": {
+    "php": ">7.2",
+    "ext-json": "*",
+    "ext-libxml": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*",
+    "ext-ctype": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jeekens\\Basics\\": "src/"
+    },
+    "files": [
+      "src/Helper.php"
+    ]
+  }
+}
