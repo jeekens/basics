@@ -13,12 +13,12 @@ class Arr
      * 获取数组中的元素，支持「.」语法获取子元素
      *
      * @param array $array
-     * @param string|null $key
+     * @param string|int|null $key
      * @param null $default
      *
      * @return array|mixed|null
      */
-    public static function get(array $array, ?string $key, $default = null)
+    public static function get(array $array, $key, $default = null)
     {
         if (is_null($key)) {
             return $array;

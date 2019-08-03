@@ -16,7 +16,7 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-simplexml": "*",
-    "ext-ctype": "*"
+    "symfony/polyfill-ctype": "^1.11"
   },
   "autoload": {
     "psr-4": {
