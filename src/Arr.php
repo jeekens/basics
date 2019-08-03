@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 
-namespace Jeekens;
+namespace Jeekens\Basics;
 
 
 use ArrayAccess;

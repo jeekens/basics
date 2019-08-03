@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-use Jeekens\Str;
+use Jeekens\Basics\Str;
 
 if (! function_exists('throw_unless')) {
     /**

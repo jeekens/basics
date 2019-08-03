@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 
-namespace Jeekens;
+namespace Jeekens\Basics;
 
 
 class Str
@@ -168,6 +168,9 @@ class Str
      */
     public static function length(string $value, ?string $encoding = null): int
     {
+        if (empty($encoding)) {
+            $encoding = mb_internal_encoding();
+        }
         return mb_strlen($value, $encoding);
     }
 
@@ -175,18 +178,23 @@ class Str
      * 字符串截断
      *
      * @param string $value
+     * @param string|null $encoding
      * @param int $limit
      * @param string $end
      *
      * @return string
      */
-    public static function limit(string $value, int $limit = 100, string $end = '...')
+    public static function limit(string $value, ?string $encoding = null, int $limit = 100, string $end = '...')
     {
-        if (mb_strwidth($value, 'UTF-8') <= $limit) {
+        if (empty($encoding)) {
+            $encoding = mb_internal_encoding();
+        }
+
+        if (mb_strwidth($value, $encoding) <= $limit) {
             return $value;
         }
 
-        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
+        return rtrim(mb_strimwidth($value, 0, $limit, '', $encoding)).$end;
     }
 
 }

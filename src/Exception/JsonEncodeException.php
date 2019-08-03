@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeekens\Exception;
+namespace Jeekens\Basics\Exception;
 
 
 class JsonEncodeException extends \Exception

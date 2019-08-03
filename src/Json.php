@@ -1,10 +1,10 @@
 <?php declare(strict_types = 1);
 
-namespace Jeekens;
+namespace Jeekens\Basics;
 
 
-use Jeekens\Exception\JsonDecodeException;
-use Jeekens\Exception\JsonEncodeException;
+use Jeekens\Basics\Exception\JsonDecodeException;
+use Jeekens\Basics\Exception\JsonEncodeException;
 
 class Json
 {

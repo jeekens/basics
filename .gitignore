@@ -1,13 +1,4 @@
-.buildpath
-.settings/
-.project
-*.patch
 .idea/
 .git/
-runtime/
-temp/
-.phpintel/
-.env
-.phpstorm.meta.php
 .DS_Store
-public/devtool/
+vendor/

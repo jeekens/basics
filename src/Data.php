@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 
-namespace Jeekens;
+namespace Jeekens\Basics;
 
 
 class Data
@@ -22,9 +22,9 @@ class Data
     public static function toXml($data, ?string $rootNode = null, ?string $noNode = null, string $noNodeAttr = null, string $encoding = null, string $ver = null): string
     {
         $root = $rootNode ?? 'xml';
-        return '<?xml version="'.$ver ?? '1.0'.
-            '" encoding="'.$encoding ?? 'utf-8'.
-            '"?><{'.$root. '}>'.self::xmlAttr($data, $noNode ?? 'node', $noNodeAttr ?? 'id').'</{'.$root.'}>';
+        return '<?xml version="'.($ver ?? '1.0').
+            '" encoding="'.($encoding ?? 'utf-8').
+            '"?><'.$root. '>'.self::xmlAttr($data, $noNode ?? 'node', $noNodeAttr ?? 'id').'</'.$root.'>';
     }
 
     private static function xmlAttr($data, $noNode, $noNodeAttr)
@@ -43,7 +43,7 @@ class Data
                 if(is_numeric($key)){
                     $string .= "<{$noNode} {$noNodeAttr}=\"{$key}\">" . self::xmlAttr($val, $noNode, $noNodeAttr) . "</$noNode>";
                 } else {
-                    $string .= "<{$noNode}>" . self::xmlAttr($val, $noNode, $noNodeAttr) . "</$noNode>";
+                    $string .= "<{$key}>" . self::xmlAttr($val, $noNode, $noNodeAttr) . "</{$key}>";
                 }
             }
             return $string;
@@ -56,7 +56,7 @@ class Data
         } elseif ($data === null) {
             return 'null';
         } else {
-            return '<![CDATA['.(string) $data . ']]>';
+            return '<![CDATA['.(string)$data.']]>';
         }
     }
 
