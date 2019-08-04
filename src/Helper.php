@@ -161,20 +161,21 @@ if (! function_exists('class_init')) {
      */
     function class_init(object $object, $options)
     {
-        foreach ($options as $property => $value) {
-            if (is_numeric($property)) {
-                continue;
-            }
+        if (can_each($options)) {
+            foreach ($options as $property => $value) {
+                if (is_numeric($property)) {
+                    continue;
+                }
 
-            $setter = 'set' . $property;
-            // has setter
-            if (method_exists($object, $setter)) {
-                $object->$setter($value);
-            } elseif (property_exists($object, $property)) {
-                $object->$property = $value;
+                $setter = 'set' . $property;
+                // has setter
+                if (method_exists($object, $setter)) {
+                    $object->$setter($value);
+                } elseif (property_exists($object, $property)) {
+                    $object->$property = $value;
+                }
             }
         }
-
         return $object;
     }
 
