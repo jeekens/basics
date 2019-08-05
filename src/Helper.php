@@ -230,6 +230,8 @@ if (! function_exists('get_class_from_file')) {
                 }
             }
         }
+        
+        if (empty($class)) return null;
         //Build the fully-qualified class name and return it
         return $namespace ? $namespace . '\\' . $class : $class;
 
