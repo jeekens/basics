@@ -204,7 +204,7 @@ if (! function_exists('get_class_from_file')) {
                 $getting_namespace = true;
             }
             //If this token is the class declaring, then flag that the next tokens will be the class name
-            if (is_array($token) && $token[0] == T_CLASS) {
+            if (is_array($token) && $token[0] == T_CLASS || $token[0] == T_INTERFACE) {
                 $getting_class = true;
             }
             //While we're grabbing the namespace name...
