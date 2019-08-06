@@ -186,10 +186,11 @@ if (! function_exists('get_class_from_file')) {
      * 获取php文件中的类名
      *
      * @param string $path_to_file
+     * @param bool $interface
      *
      * @return string
      */
-    function get_class_from_file(string $path_to_file)
+    function get_class_from_file(string $path_to_file, bool $interface = false)
     {
         //Grab the contents of the file
         $contents = file_get_contents($path_to_file);
@@ -204,7 +205,7 @@ if (! function_exists('get_class_from_file')) {
                 $getting_namespace = true;
             }
             //If this token is the class declaring, then flag that the next tokens will be the class name
-            if (is_array($token) && $token[0] == T_CLASS || $token[0] == T_INTERFACE) {
+            if (is_array($token) && $token[0] == T_CLASS || ($interface && $token[0] == T_INTERFACE)) {
                 $getting_class = true;
             }
             //While we're grabbing the namespace name...
