@@ -1,7 +1,7 @@
 {
   "name": "jeekens/basics",
   "type": "library",
-  "version": "v1.0.1",
+  "version": "v1.0.0",
   "keywords": [
     "php",
     "swoole",
