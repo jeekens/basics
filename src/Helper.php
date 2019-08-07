@@ -146,7 +146,7 @@ if (! function_exists('can_each')) {
      */
     function can_each($value): bool
     {
-        return is_array($value) || $value instanceof Traversable;
+        return $value instanceof iterable;
     }
 }
 
