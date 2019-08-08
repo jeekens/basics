@@ -237,3 +237,20 @@ if (! function_exists('get_class_from_file')) {
         return $namespace ? $namespace . '\\' . $class : $class;
     }
 }
+
+if (function_exists('is_regular_expression')) {
+    /**
+     * 判断字符串是否是一个合法的正则表达式
+     *
+     * @param string $string
+     *
+     * @return bool
+     */
+    function is_regular_expression(string $string): bool
+    {
+        set_error_handler(function() {}, E_WARNING);
+        $bool = preg_match($string, "") !== false;
+        restore_error_handler();
+        return $bool;
+    }
+}
