@@ -181,6 +181,28 @@ if (! function_exists('class_init')) {
 
 }
 
+if (! function_exists('class_get')) {
+    /**
+     * 快速获取对象属性值
+     *
+     * @param object $object
+     * @param string $name
+     * @param string $prefix
+     *
+     * @return |null
+     */
+    function class_get(object $object, string $name, string $prefix = 'get')
+    {
+        $method = $prefix.$name;
+        if (property_exists($object, $name)) {
+            return $object->$name;
+        } elseif (method_exists($object, $method)) {
+            return $object->$method();
+        }
+        return null;
+    }
+}
+
 if (! function_exists('get_class_from_file')) {
     /**
      * 获取php文件中的类名
