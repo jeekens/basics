@@ -286,11 +286,11 @@ if (!function_exists('scripted')) {
     function scripted(): bool
     {
         $checkCmd = "sh -c 'echo OK'";
-        return execute($checkCmd, false) === 'OK';
+        return script($checkCmd, false) === 'OK';
     }
 }
 
-if (!function_exists('execute')) {
+if (!function_exists('script')) {
     /**
      * 执行脚本或壳
      *
@@ -300,7 +300,7 @@ if (!function_exists('execute')) {
      *
      * @return array|string
      */
-    function execute(string $command, bool $returnStatus = true, string $cwd = null)
+    function script(string $command, bool $returnStatus = true, string $cwd = null)
     {
         $exitStatus = 1;
 
