@@ -189,7 +189,7 @@ if (! function_exists('class_get')) {
      * @param string $name
      * @param string $prefix
      *
-     * @return |null
+     * @return mixed|null
      */
     function class_get(object $object, string $name, string $prefix = 'get')
     {
@@ -274,5 +274,72 @@ if (function_exists('is_regular_expression')) {
         $bool = preg_match($string, "") !== false;
         restore_error_handler();
         return $bool;
+    }
+}
+
+if (!function_exists('scripted')) {
+    /**
+     * 判断当前是否可以执行外部脚本和壳
+     *
+     * @return bool
+     */
+    function scripted(): bool
+    {
+        $checkCmd = "sh -c 'echo OK'";
+        return execute($checkCmd, false) === 'OK';
+    }
+}
+
+if (!function_exists('execute')) {
+    /**
+     * 执行脚本或壳
+     *
+     * @param string $command
+     * @param bool $returnStatus
+     * @param string|null $cwd
+     *
+     * @return array|string
+     */
+    function execute(string $command, bool $returnStatus = true, string $cwd = null)
+    {
+        $exitStatus = 1;
+
+        if ($cwd) {
+            chdir($cwd);
+        }
+
+        // system
+        if (function_exists('system')) {
+            ob_start();
+            system($command, $exitStatus);
+            $output = ob_get_clean();
+
+            // passthru
+        } elseif (function_exists('passthru')) {
+            ob_start();
+            passthru($command, $exitStatus);
+            $output = ob_get_clean();
+
+            //exec
+        } elseif (function_exists('exec')) {
+            exec($command, $output, $exitStatus);
+            $output = implode("\n", $output);
+
+            //shell_exec
+        } elseif (function_exists('shell_exec')) {
+            $output = shell_exec($command);
+        } else {
+            $output = 'Command execution not possible on this system';
+            $exitStatus = 0;
+        }
+
+        if ($returnStatus) {
+            return [
+                'output' => trim($output),
+                'status' => $exitStatus
+            ];
+        }
+
+        return trim($output);
     }
 }
