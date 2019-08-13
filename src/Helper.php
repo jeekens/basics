@@ -343,3 +343,50 @@ if (!function_exists('script')) {
         return trim($output);
     }
 }
+
+if (!function_exists('value')) {
+    /**
+     * Return the callback value
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+}
+
+if (!function_exists('call')) {
+    /**
+     * 执行回调
+     *
+     * @param $callback
+     * @param mixed ...$args
+     *
+     * @return mixed
+     */
+    function call($callback, ...$args)
+    {
+        if (is_string($callback)) {
+            // className::method
+            if (strpos($callback, '::') > 0) {
+                $callback = explode('::', $callback, 2);
+                // function
+            } elseif (function_exists($callback)) {
+                return $callback(...$args);
+            }
+        } elseif (is_object($callback) && method_exists($callback, '__invoke')) {
+            return $callback(...$args);
+        }
+
+        if (is_array($callback)) {
+            [$obj, $mhd] = $callback;
+
+            return is_object($obj) ? $obj->$mhd(...$args) : $obj::$mhd(...$args);
+        }
+
+        return $callback(...$args);
+    }
+}
