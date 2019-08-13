@@ -4,7 +4,7 @@
 namespace Jeekens\Basics;
 
 
-class MimeTypes
+class Fs
 {
 
     protected static $mimeTypesExt = [
@@ -1764,43 +1764,160 @@ class MimeTypes
     ];
 
     /**
+     * 通过mime type获取文件后缀名，极个别情况下会返回数组
+     *
      * @param string|null $mimeType
      *
      * @return string|array|null
      */
-    public static function getExtByMimeType(?string $mimeType = null)
+    public static function mimeTypeExt(?string $mimeType = null)
     {
-        return self::$mimeTypesExt[$mimeType] ?? null;
+        return self::$mimeTypesExt[strtolower($mimeType)] ?? null;
     }
 
     /**
+     * 通过后缀名获取文件mime type，极个别情况下会返回数组
+     *
      * @param string|null $ext
      *
      * @return string|array|null
      */
-    public static function getMimeTypeByExt(?string $ext = null)
+    public static function extMimeType(?string $ext = null)
     {
-        $ext = Str::replaceFirst('.', '', $ext);
+        $ext = Str::replaceFirst('.', '', strtolower($ext));
         return self::$extMimeType[$ext] ?? null;
     }
 
     /**
+     * 判断文件扩展名和文件mime类型是否匹配
+     *
      * @param string $ext
      * @param string $mimeType
      *
      * @return bool
      */
-    public static function extMimeTypeIsRight(string $ext, string $mimeType): bool
+    public static function extMimeTypeRight(string $ext, string $mimeType): bool
     {
-        $tmp = self::getMimeTypeByExt($ext);
+        $tmp = self::extMimeType($ext);
 
         if (is_string($tmp)) {
-            return $tmp == $mimeType;
+            return $tmp == strtolower($mimeType);
         } elseif (is_array($tmp)) {
-            return array_search($mimeType, $tmp) !== false;
+            return array_search(strtolower($mimeType), $tmp) !== false;
         }
 
         return false;
+    }
+
+    /**
+     * 获取当前系统临时目录路径
+     *
+     * @from swoft
+     *
+     * @return string
+     */
+    public static function getTmpDir(): string
+    {
+        if (function_exists('sys_get_temp_dir')) {
+            $tmp = sys_get_temp_dir();
+        } elseif (!empty($_SERVER['TMP'])) {
+            $tmp = $_SERVER['TMP'];
+        } elseif (!empty($_SERVER['TEMP'])) {
+            $tmp = $_SERVER['TEMP'];
+        } elseif (!empty($_SERVER['TMPDIR'])) {
+            $tmp = $_SERVER['TMPDIR'];
+        } else {
+            $tmp = getcwd();
+        }
+
+        return $tmp;
+    }
+
+    /**
+     * 获取文件后缀名
+     *
+     * @param string $path
+     * @param bool $dot
+     *
+     * @return string
+     */
+    public static function getFileExt(string $path, bool $dot = false): string
+    {
+        if ($ext = pathinfo($path, PATHINFO_EXTENSION)) {
+            return $dot ? $ext : '.' . $ext;
+        }
+
+        return '';
+    }
+
+    /**
+     * 判断是否为绝对路径
+     *
+     * @from swoft
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public static function isAbsPath(string $path): bool
+    {
+        if (!$path) {
+            return false;
+        }
+
+        if (strpos($path, '/') === 0 // linux/mac
+            || 1 === preg_match('#^[a-z]:[\/|\\\]{1}.+#i', $path) // windows
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取一个路径的标准格式，
+     *
+     * 'nz/app/../a/./tmp/.///is' To 'nz/a/tmp/is'
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getAbsPath(string $path): string
+    {
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+        $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $absolutes = [];
+
+        foreach ($parts as $part) {
+            if ('.' == $part) continue;
+
+            if ('..' == $part) {
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $part;
+            }
+        }
+        return implode(DIRECTORY_SEPARATOR, $absolutes);
+    }
+
+    /**
+     * 判断目录是否存在，当make为true时不存在则自动创建
+     *
+     * @param string $dir
+     * @param bool $make
+     * @param int $mode
+     * @param null $context
+     *
+     * @return bool
+     */
+    public static function dirExists(string $dir, bool $make = true, $mode = 0777, $context = null): bool
+    {
+        if (!is_dir($dir)) {
+            return $make && mkdir($dir, $mode, true, $context);
+        } else {
+            return true;
+        }
     }
 
 }

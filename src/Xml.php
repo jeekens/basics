@@ -12,46 +12,40 @@ class Xml
      * @param string $xml
      *
      * @return array
-     *
-     * @throws Exception\JsonDecodeException
-     * @throws Exception\JsonEncodeException
      */
     public static function decode(string $xml): array
     {
-        return self::xmlToArray($xml);
-    }
+        $data  = @(array)simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
 
-    /**
-     * @param array $data
-     *
-     * @return string
-     */
-    public static function encode(array $data): string
-    {
-        $xml = '<xml>';
-        $xml .= self::arrayToXml($data);
-        $xml .= '</xml>';
-        return $xml;
-    }
+        if (isset($data[0]) && $data[0] === false) {
+            $data = null;
+        }
 
-    /**
-     * @param string $xml
-     *
-     * @return array
-     *
-     * @throws Exception\JsonDecodeException
-     * @throws Exception\JsonEncodeException
-     */
-    public static function xmlToArray(string $xml): array
-    {
-        $string  = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
-        $jsonStr = Json::encode($string);
-        $data    = Json::decode($jsonStr, true);
-        if ($data === false) {
-            return [];
+        if ($data) {
+            $data = self::parseToArray($data);
         }
 
         return $data;
+    }
+
+    /**
+     * 编码
+     *
+     * @param $data
+     * @param string|null $rootNode
+     * @param string|null $noNode
+     * @param string|null $noNodeAttr
+     * @param string|null $encoding
+     * @param string|null $ver
+     *
+     * @return string
+     */
+    public static function encode($data, ?string $rootNode = null, ?string $noNode = null, string $noNodeAttr = null, string $encoding = null, string $ver = null): string
+    {
+        $root = $rootNode ?? 'xml';
+        return '<?xml version="'.($ver ?? '1.0').
+            '" encoding="'.($encoding ?? 'utf-8').
+            '"?><'.$root. '>'.self::xmlAttr($data, $noNode ?? 'node', $noNodeAttr ?? 'id').'</'.$root.'>';
     }
 
     /**
@@ -62,9 +56,11 @@ class Xml
     protected static function parseToArray($data): array
     {
         $res = null;
+
         if (is_object($data)) {
             $data = (array)$data;
         }
+
         if (is_array($data)) {
             foreach ($data as $key => $val) {
                 if (is_iterable($val)) {
@@ -74,40 +70,48 @@ class Xml
                 }
             }
         }
+
         return $res;
     }
 
     /**
-     * @param array $data
+     * @param $data
+     * @param $noNode
+     * @param $noNodeAttr
      *
-     * @return string
+     * @return array|string
      */
-    public static function arrayToXml(array $data): string
+    private static function xmlAttr($data, $noNode, $noNodeAttr)
     {
-        $xml = '';
-        if (!empty($data)) {
-            foreach ($data as $key => $val) {
-                $xml .= "<$key>";
-                if (is_iterable($val)) {
-                    $xml .= self::arrayToXml($val);
-                } elseif (is_numeric($val)) {
-                    $xml .= $val;
-                } else {
-                    $xml .= self::characterDataReplace($val);
-                }
-                $xml .= "</$key>";
+        if (is_object($data)) {
+            if (method_exists($data, '__toString')) {
+                $data = $data->__toString();
+            } else {
+                $data = get_object_vars($data);
             }
         }
-        return $xml;
+
+        if (is_array($data)) {
+            $string = '';
+            foreach ($data as $key => $val) {
+                if(is_numeric($key)){
+                    $string .= "<{$noNode} {$noNodeAttr}=\"{$key}\">" . self::xmlAttr($val, $noNode, $noNodeAttr) . "</$noNode>";
+                } else {
+                    $string .= "<{$key}>" . self::xmlAttr($val, $noNode, $noNodeAttr) . "</{$key}>";
+                }
+            }
+            return $string;
+        } elseif (is_numeric($data)) {
+            return $data;
+        } elseif ($data === true) {
+            return 'true';
+        } elseif ($data === false) {
+            return 'false';
+        } elseif ($data === null) {
+            return 'null';
+        } else {
+            return '<![CDATA['.(string)$data.']]>';
+        }
     }
 
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
-    protected static function characterDataReplace(string $string): string
-    {
-        return sprintf('<![CDATA[%s]]>', $string);
-    }
 }

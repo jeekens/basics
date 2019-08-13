@@ -4,7 +4,7 @@
 namespace Jeekens\Basics;
 
 
-class HttpStatus
+class Http
 {
 
     const HTTP_CONTINUE = 100;

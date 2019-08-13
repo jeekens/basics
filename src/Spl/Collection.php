@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 
-namespace Jeekens\Basics;
+namespace Jeekens\Basics\Spl;
 
 
 use Countable;
@@ -9,7 +9,6 @@ use ArrayAccess;
 use Traversable;
 use ArrayIterator;
 use IteratorAggregate;
-use Jeekens\Basics\Spl\Arrayable;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
 {

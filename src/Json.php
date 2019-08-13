@@ -10,16 +10,14 @@ class Json
 {
 
     /**
-     * decode
-     *
      * @param string $json
      * @param bool $assoc
      * @param int $depth
      * @param int $options
      *
-     * @throws JsonDecodeException
-     *
      * @return mixed
+     *
+     * @throws JsonDecodeException
      */
     public static function decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
     {
