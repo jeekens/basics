@@ -1776,6 +1776,22 @@ class Fs
     }
 
     /**
+     * 获取文件mimeType
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function mimeType(string $file): string
+    {
+        if (function_exists('finfo_file')) {
+            return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+        }
+
+        return '';
+    }
+
+    /**
      * 通过后缀名获取文件mime type，极个别情况下会返回数组
      *
      * @param string|null $ext
