@@ -16,6 +16,7 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-simplexml": "*",
+    "ext-fileinfo": "*",
     "symfony/polyfill-ctype": "~1.11"
   },
   "autoload": {
