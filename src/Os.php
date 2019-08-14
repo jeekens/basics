@@ -117,7 +117,7 @@ class Os
      */
     public static function isWin(): bool
     {
-        return PHP_SAPI === 'WIN';
+        return stripos(PHP_OS, 'WIN') === 0;
     }
 
     /**
@@ -127,7 +127,7 @@ class Os
      */
     public static function isMac(): bool
     {
-        return PHP_SAPI === 'Darwin';
+        return stripos(PHP_OS, 'Darwin') !== false;
     }
 
     /**
