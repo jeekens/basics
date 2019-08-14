@@ -198,7 +198,7 @@ class Os
             // handle other OSs with bash/zsh/ksh/csh if available to hide the answer
             $test = "/usr/bin/env %s -c 'echo OK' 2> /dev/null";
 
-            foreach (['bash', 'zsh', 'ksh', 'csh'] as $sh) {
+            foreach (['sh', 'bash', 'zsh', 'ksh', 'csh'] as $sh) {
                 if ('OK' === rtrim(shell_exec(sprintf($test, $sh)))) {
                     self::$shell = $sh;
                     break;
