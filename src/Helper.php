@@ -254,9 +254,9 @@ if (!function_exists('call')) {
         }
 
         if (is_array($callback)) {
-            [$obj, $mhd] = $callback;
+            [$obj, $method] = $callback;
 
-            return is_object($obj) ? $obj->$mhd(...$args) : $obj::$mhd(...$args);
+            return is_object($obj) ? $obj->$method(...$args) : $obj::$method(...$args);
         }
 
         return $callback(...$args);
