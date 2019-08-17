@@ -211,19 +211,41 @@ class Os
     }
 
     /**
-     * 判断终端是否支持ascii字符
+     * 判断windows终端是否支持ascii字符
+     *
+     * @param bool $isWin
      *
      * Based on https://github.com/symfony/symfony/blob/master/src/Symfony/Component/Console/Output/StreamOutput.php
      *
      * @return bool
      */
-    public function systemHasAnsiSupport()
+    public function systemHasAnsiSupport(bool $isWin = false)
     {
-        return (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
-            || false !== getenv('ANSICON')
-            || 'ON' === getenv('ConEmuANSI')
-            || 'Hyper' === getenv('TERM_PROGRAM')
-            || 'xterm' === getenv('TERM');
+        if ($isWin) {
+            return (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
+                || false !== getenv('ANSICON')
+                || 'ON' === getenv('ConEmuANSI')
+                || 'Hyper' === getenv('TERM_PROGRAM')
+                || 'xterm' === getenv('TERM');
+        } else {
+            if ('Hyper' === getenv('TERM_PROGRAM')) {
+                return true;
+            }
+
+            $stream = STDOUT;
+
+            if (function_exists('stream_isatty')) {
+                return @stream_isatty($stream);
+            }
+
+            if (function_exists('posix_isatty')) {
+                return @posix_isatty($stream);
+            }
+
+            $stat = @fstat($stream);
+            // Check if formatted mode is S_IFCHR
+            return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
+        }
     }
 
 }
