@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+
+use Jeekens\Basics\Spl\Arrayable;
+
 if (!function_exists('throw_unless')) {
     /**
      * 如果条件执行结果为false则抛出异常
@@ -260,5 +263,27 @@ if (!function_exists('call')) {
         }
 
         return $callback(...$args);
+    }
+}
+
+if (!function_exists('to_array')) {
+    /**
+     * 变量转数组
+     *
+     * @param $value
+     *
+     * @return array
+     */
+    function to_array($value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        } elseif ($value instanceof Arrayable) {
+            return $value->toArray();
+        } elseif ($value instanceof Iterator) {
+            return iterator_to_array($value);
+        } else {
+            return [$value];
+        }
     }
 }
