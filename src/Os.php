@@ -219,7 +219,7 @@ class Os
      *
      * @return bool
      */
-    public function systemHasAnsiSupport(bool $isWin = false)
+    public static function systemHasAnsiSupport(bool $isWin = false)
     {
         if ($isWin) {
             return (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
