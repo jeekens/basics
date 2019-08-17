@@ -210,4 +210,20 @@ class Os
         return self::$shell;
     }
 
+    /**
+     * 判断终端是否支持ascii字符
+     *
+     * Based on https://github.com/symfony/symfony/blob/master/src/Symfony/Component/Console/Output/StreamOutput.php
+     *
+     * @return bool
+     */
+    public function systemHasAnsiSupport()
+    {
+        return (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
+            || false !== getenv('ANSICON')
+            || 'ON' === getenv('ConEmuANSI')
+            || 'Hyper' === getenv('TERM_PROGRAM')
+            || 'xterm' === getenv('TERM');
+    }
+
 }
