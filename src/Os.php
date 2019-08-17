@@ -7,8 +7,6 @@ namespace Jeekens\Basics;
 class Os
 {
 
-    private static $screenSize;
-
     private static $shell;
 
     /**
@@ -128,55 +126,6 @@ class Os
     public static function isMac(): bool
     {
         return stripos(PHP_OS, 'Darwin') !== false;
-    }
-
-    /**
-     * 返回终端屏幕大小
-     *
-     * @param bool $refresh
-     *
-     * @return array|bool
-     */
-    public static function getScreenSize(bool $refresh = false)
-    {
-        if (self::$screenSize !== null && !$refresh) {
-            return self::$screenSize;
-        }
-
-        if (self::getShell()) {
-            // try stty if available
-            $stty = [];
-
-            if (exec('stty -a 2>&1', $stty)
-                && preg_match('/rows\s+(\d+);\s*columns\s+(\d+);/mi', implode(' ', $stty), $matches)
-            ) {
-                return (self::$screenSize = [$matches[2], $matches[1]]);
-            }
-
-            // fallback to tput, which may not be updated on terminal resize
-            if (($width = (int)exec('tput cols 2>&1')) > 0 && ($height = (int)exec('tput lines 2>&1')) > 0) {
-                return (self::$screenSize = [$width, $height]);
-            }
-
-            // fallback to ENV variables, which may not be updated on terminal resize
-            if (($width = (int)getenv('COLUMNS')) > 0 && ($height = (int)getenv('LINES')) > 0) {
-                return (self::$screenSize = [$width, $height]);
-            }
-        }
-
-        if (self::isWin()) {
-            $output = [];
-            exec('mode con', $output);
-
-            if (isset($output[1]) && strpos($output[1], 'CON') !== false) {
-                return (self::$screenSize = [
-                    (int)preg_replace('~\D~', '', $output[3]),
-                    (int)preg_replace('~\D~', '', $output[4])
-                ]);
-            }
-        }
-
-        return (self::$screenSize = false);
     }
 
     /**
