@@ -4,7 +4,7 @@
 namespace Jeekens\Basics\Spl;
 
 
-interface Jsonable
+interface Jsonable extends Arrayable
 {
 
     /**

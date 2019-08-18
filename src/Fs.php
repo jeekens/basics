@@ -4,6 +4,27 @@
 namespace Jeekens\Basics;
 
 
+use function array_filter;
+use function array_pop;
+use function array_search;
+use function explode;
+use function finfo_file;
+use function finfo_open;
+use function function_exists;
+use function getcwd;
+use function implode;
+use function is_array;
+use function is_dir;
+use function is_string;
+use function mkdir;
+use function pathinfo;
+use function preg_match;
+use function preg_match_all;
+use function str_replace;
+use function strpos;
+use function strtolower;
+use function sys_get_temp_dir;
+
 class Fs
 {
 

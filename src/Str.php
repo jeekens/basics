@@ -4,6 +4,24 @@
 namespace Jeekens\Basics;
 
 
+use function bin2hex;
+use function lcfirst;
+use function mb_internal_encoding;
+use function mb_strlen;
+use function mb_strwidth;
+use function mt_srand;
+use function preg_quote;
+use function preg_replace;
+use function random_bytes;
+use function rtrim;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function substr;
+use function substr_replace;
+use function ucwords;
+
 class Str
 {
 

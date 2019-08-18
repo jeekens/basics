@@ -4,6 +4,27 @@
 namespace Jeekens\Basics;
 
 
+use function chdir;
+use function exec;
+use function file_exists;
+use function fstat;
+use function function_exists;
+use function getenv;
+use function implode;
+use function ob_get_clean;
+use function ob_start;
+use function passthru;
+use function rtrim;
+use function shell_exec;
+use function sprintf;
+use function stream_isatty;
+use function stripos;
+use function strlen;
+use function strtolower;
+use function substr;
+use function system;
+use function trim;
+
 class Os
 {
 

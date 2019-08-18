@@ -4,11 +4,44 @@
 namespace Jeekens\Basics\Spl;
 
 
+use function abs;
+use function array_combine;
+use function array_diff;
+use function array_diff_assoc;
+use function array_diff_key;
+use function array_diff_ukey;
+use function array_filter;
+use function array_flip;
+use function array_intersect;
+use function array_intersect_key;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function array_merge_recursive;
+use function array_pad;
+use function array_pop;
+use function array_replace;
+use function array_replace_recursive;
+use function array_reverse;
+use function array_shift;
+use function array_slice;
+use function array_udiff;
+use function array_values;
+use function asort;
+use function count;
 use Countable;
 use ArrayAccess;
+use function func_get_args;
+use function is_array;
+use function iterator_to_array;
+use Jeekens\Basics\Arr;
+use function krsort;
+use function ksort;
 use Traversable;
 use ArrayIterator;
 use IteratorAggregate;
+use function uasort;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
 {
@@ -51,7 +84,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
+        if ($offset === null) {
             $this->items[] = $value;
         } else {
             $this->items[$offset] = $value;
@@ -322,7 +355,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      */
     public function only($keys)
     {
-        if (is_null($keys)) {
+        if ($keys === null) {
             return new static($this->items);
         }
 

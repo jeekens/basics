@@ -4,6 +4,8 @@
 namespace Jeekens\Basics;
 
 
+use function in_array;
+
 class Http
 {
 
@@ -251,7 +253,7 @@ class Http
      */
     public static function isRedirect($statusCode): bool
     {
-        return \in_array($statusCode, [201, 301, 302, 303, 307, 308]);
+        return in_array($statusCode, [201, 301, 302, 303, 307, 308]);
     }
 
     /**
