@@ -129,19 +129,20 @@ if (!function_exists('class_get')) {
      *
      * @param object $object
      * @param string $name
+     * @param mixed $default
      * @param string $prefix
      *
      * @return mixed|null
      */
-    function class_get(object $object, string $name, string $prefix = 'get')
+    function class_get(object $object, string $name, $default = null, string $prefix = 'get')
     {
         $method = $prefix . $name;
-        if (property_exists($object, $name)) {
-            return $object->$name;
-        } elseif (method_exists($object, $method)) {
+        if (method_exists($object, $method)) {
             return $object->$method();
+        } elseif (property_exists($object, $name)) {
+            return $object->$name;
         }
-        return null;
+        return $default;
     }
 }
 

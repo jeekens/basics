@@ -9,7 +9,6 @@ use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_shift;
 use ArrayAccess;
 use function explode;
 use function is_array;
@@ -69,30 +68,23 @@ class Arr
     }
 
     /**
-     * 函数使用「.」符号从深度嵌套的数组中删除给定的键
+     * 删除数组中的元素
      *
      * @param array $target
      * @param $key
      *
      * @return array
      */
-    public static function unset(array &$target, $key)
+    public static function unset(array &$target, $keys)
     {
-        if (!is_array($target)) {
-            return $target;
-        }
+        $keys = to_array($keys);
 
-        $segments = is_array($key) ? $key : explode('.', $key);
-        $segment = array_shift($segments);
-
-        if ($segment == '*') {
-            $target = [];
-        } elseif ($segments) {
-            if (array_key_exists($segment, $target)) {
-                static::unset($target[$segment], $segments);
+        foreach ($keys as $key) {
+            if (! (is_string($key) || is_numeric($key))) {
+                continue;
             }
-        } elseif (array_key_exists($segment, $target)) {
-            unset($target[$segment]);
+
+            unset($target[$key]);
         }
 
         return $target;
@@ -109,6 +101,19 @@ class Arr
     {
         $keys = array_keys($array);
         return array_keys($keys) !== $keys;
+    }
+
+    /**
+     * 判断数组是否为索引数组
+     *
+     * @param array $array
+     *
+     * @return bool
+     */
+    public static function isIndex(array $array): bool
+    {
+        $keys = array_keys($array);
+        return array_keys($keys) === $keys;
     }
 
     /**
