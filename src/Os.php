@@ -181,7 +181,7 @@ class Os
     }
 
     /**
-     * 判断windows终端是否支持ascii字符
+     * 判断终端是否支持ansi字符
      *
      * @param bool $isWin
      *
