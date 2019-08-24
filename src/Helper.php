@@ -272,19 +272,24 @@ if (!function_exists('to_array')) {
      * 变量转数组
      *
      * @param $value
+     * @param $isConv
      *
      * @return array
      */
-    function to_array($value): array
+    function to_array($value, bool $isConv = true): array
     {
         if (is_array($value)) {
             return $value;
-        } elseif ($value instanceof Arrayable) {
-            return $value->toArray();
-        } elseif ($value instanceof Iterator) {
-            return iterator_to_array($value);
-        } else {
-            return [$value];
         }
+
+        if ($isConv) {
+            if ($value instanceof Arrayable) {
+                return $value->toArray();
+            } elseif ($value instanceof Iterator) {
+                return iterator_to_array($value);
+            }
+        }
+
+        return [$value];
     }
 }
