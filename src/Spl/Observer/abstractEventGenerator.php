@@ -38,7 +38,7 @@ abstract class abstractEventGenerator implements EventGenerator
             if (empty($eventData)) {
                 call($observer);
             } else {
-                call($observer, to_array($eventData, false));
+                call($observer, ... to_array($eventData, false));
             }
         }
     }
