@@ -4,6 +4,7 @@
 namespace Jeekens\Basics;
 
 
+use Jeekens\Basics\Spl\Collection;
 use function array_flip;
 use function array_intersect_key;
 use function array_key_exists;
@@ -143,6 +144,47 @@ class Arr
     public static function is($value): bool
     {
         return is_array($value) || $value instanceof ArrayAccess;
+    }
+
+    /**
+     * 将多个数组合并为一个数组
+     *
+     * @param $array
+     *
+     * @return array
+     */
+    public static function collapse($array)
+    {
+        $results = [];
+
+        foreach ($array as $values) {
+            if ($values instanceof Collection) {
+                $values = $values->all();
+            } elseif (! is_array($values)) {
+                continue;
+            }
+
+            $results[] = $values;
+        }
+
+        return array_merge([], ...$results);
+    }
+
+    /**
+     * 确定给定键是否存在于提供的数组中
+     *
+     * @param $array
+     * @param $key
+     *
+     * @return bool
+     */
+    public static function exists($array, $key)
+    {
+        if ($array instanceof ArrayAccess) {
+            return $array->offsetExists($key);
+        }
+
+        return array_key_exists($key, $array);
     }
 
 }

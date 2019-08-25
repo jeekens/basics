@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
 
+use Jeekens\Basics\Arr;
 use Jeekens\Basics\Spl\Arrayable;
+use Jeekens\Basics\Spl\Collection;
 
 if (!function_exists('throw_unless')) {
     /**
@@ -291,5 +293,120 @@ if (!function_exists('to_array')) {
         }
 
         return [$value];
+    }
+}
+
+if (! function_exists('data_get')) {
+    /**
+     * Get an item from an array or object using "dot" notation.
+     *
+     * @param  mixed   $target
+     * @param  string|array|int  $key
+     * @param  mixed   $default
+     *
+     * @from laravel
+     *
+     * @return mixed
+     */
+    function data_get($target, $key, $default = null)
+    {
+        if (is_null($key)) {
+            return $target;
+        }
+
+        $key = is_array($key) ? $key : explode('.', $key);
+
+        while (! is_null($segment = array_shift($key))) {
+            if ($segment === '*') {
+                if ($target instanceof Collection) {
+                    $target = $target->all();
+                } elseif (! is_array($target)) {
+                    return value($default);
+                }
+
+                $result = [];
+
+                foreach ($target as $item) {
+                    $result[] = data_get($item, $key);
+                }
+
+                return in_array('*', $key) ? Arr::collapse($result) : $result;
+            }
+
+            if (Arr::isAssoc($target) && Arr::exists($target, $segment)) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
+            } else {
+                return value($default);
+            }
+        }
+
+        return $target;
+    }
+}
+
+if (! function_exists('data_set')) {
+    /**
+     * Set an item on an array or object using dot notation.
+     *
+     * @param  mixed  $target
+     * @param  string|array  $key
+     * @param  mixed  $value
+     * @param  bool  $overwrite
+     *
+     * @from laravel
+     *
+     * @return mixed
+     */
+    function data_set(&$target, $key, $value, $overwrite = true)
+    {
+        $segments = is_array($key) ? $key : explode('.', $key);
+
+        if (($segment = array_shift($segments)) === '*') {
+            if (! Arr::isAssoc($target)) {
+                $target = [];
+            }
+
+            if ($segments) {
+                foreach ($target as &$inner) {
+                    data_set($inner, $segments, $value, $overwrite);
+                }
+            } elseif ($overwrite) {
+                foreach ($target as &$inner) {
+                    $inner = $value;
+                }
+            }
+        } elseif (Arr::isAssoc($target)) {
+            if ($segments) {
+                if (! Arr::exists($target, $segment)) {
+                    $target[$segment] = [];
+                }
+
+                data_set($target[$segment], $segments, $value, $overwrite);
+            } elseif ($overwrite || ! Arr::exists($target, $segment)) {
+                $target[$segment] = $value;
+            }
+        } elseif (is_object($target)) {
+            if ($segments) {
+                if (! isset($target->{$segment})) {
+                    $target->{$segment} = [];
+                }
+
+                data_set($target->{$segment}, $segments, $value, $overwrite);
+            } elseif ($overwrite || ! isset($target->{$segment})) {
+                $target->{$segment} = $value;
+            }
+        } else {
+            $target = [];
+
+            if ($segments) {
+                data_set($target[$segment], $segments, $value, $overwrite);
+            } elseif ($overwrite) {
+                $target[$segment] = $value;
+            }
+        }
+
+        return $target;
     }
 }
