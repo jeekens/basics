@@ -4,12 +4,20 @@
 namespace Jeekens\Basics;
 
 
+use FilesystemIterator;
+use Jeekens\Basics\Exception\DirectoryCreatedException;
+use Jeekens\Basics\Exception\DirectoryDeletedException;
+use Jeekens\Basics\Exception\FileOpenException;
+use Jeekens\Basics\Exception\FileRemoveException;
+use RuntimeException;
+use Throwable;
 use function array_filter;
 use function array_pop;
 use function array_search;
 use function explode;
 use function finfo_file;
 use function finfo_open;
+use function fopen;
 use function function_exists;
 use function getcwd;
 use function implode;
@@ -19,11 +27,13 @@ use function is_string;
 use function mkdir;
 use function pathinfo;
 use function preg_match;
-use function preg_match_all;
+use function rmdir;
+use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
 use function sys_get_temp_dir;
+use function unlink;
 
 class Fs
 {
@@ -1903,7 +1913,7 @@ class Fs
         }
 
         if (strpos($path, '/') === 0 // linux/mac
-            || 1 === preg_match('#^[a-z]:[\/|\\\]{1}.+#i', $path) // windows
+            || 1 === preg_match('#^[a-z]:[/|\\\]{1}.+#i', $path) // windows
         ) {
             return true;
         }
@@ -1947,14 +1957,230 @@ class Fs
      * @param null $context
      *
      * @return bool
+     *
+     * @throws Throwable
      */
-    public static function dirExists(string $dir, bool $make = true, $mode = 0777, $context = null): bool
+    public static function directoryExists(string $dir, bool $make = true, $mode = 0777, $context = null): bool
     {
         if (!is_dir($dir)) {
-            return $make && mkdir($dir, $mode, true, $context);
+            return $make && self::mkDir($dir, $mode, true, $context);
         } else {
             return true;
         }
+    }
+
+    /**
+     * 清空目录
+     *
+     * @param string $dir
+     * @param bool $rmSelf
+     *
+     * @return bool
+     *
+     * @throws DirectoryDeletedException
+     * @throws FileRemoveException
+     */
+    public static function cleanupDirectory(string $dir, bool $rmSelf = false)
+    {
+        $items = new FilesystemIterator($dir);
+
+        foreach ($items as $item) {
+
+            if ($item->isDir() && !$item->isLink()) {
+                self::cleanupDirectory($item->getPathname());
+            } else {
+                self::rmFileEx($item->getPathname());
+            }
+
+        }
+
+        if ($rmSelf) {
+            self::rmDirEx($dir);
+        }
+
+        return true;
+    }
+
+    /**
+     * 创建目录，指定ex参数后失败会抛出异常，否则返回false
+     *
+     * @param string $dir
+     * @param int $mode
+     * @param bool $recursive
+     * @param mixed $context
+     * @param bool $ex
+     *
+     * @return bool
+     *
+     * @throws Throwable
+     */
+    public static function mkDir(string $dir, $mode = 0777, bool $recursive = false, $context = null, bool $ex = false)
+    {
+        try {
+            if (!is_dir($dir)) {
+                $bool = mkdir($dir, $mode, $recursive, $context);
+                if (!$bool && $ex) {
+                    throw new DirectoryCreatedException(sprintf('Failed to create "%s" directory.', $dir));
+                } else {
+                    return $bool;
+                }
+            } else {
+                return true;
+            }
+        } catch (Throwable $e) {
+            if ($ex) {
+                throw new DirectoryCreatedException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 创建目录，失败会抛出异常
+     *
+     * @param string $dir
+     * @param int $mode
+     * @param bool $recursive
+     * @param null $context
+     *
+     * @throws Throwable
+     */
+    public static function mkDirEx(string $dir, $mode = 0777, bool $recursive = true, $context = null)
+    {
+        self::mkDir($dir, $mode, $recursive, $context, true);
+    }
+
+    /**
+     * 删除目录，指定ex参数后失败会抛出异常，否则返回false
+     *
+     * @param string $dir
+     * @param null $context
+     * @param bool $ex
+     *
+     * @return bool
+     *
+     * @throws DirectoryDeletedException
+     */
+    public static function rmDir(string $dir, $context = null, bool $ex = false)
+    {
+        try {
+            $bool = rmdir($dir, $context);
+            if (!$bool && $ex) {
+                throw new DirectoryDeletedException(sprintf('Failed to remove "%s" directory.', $dir));
+            } else {
+                return $bool;
+            }
+        } catch (Throwable $e) {
+            if ($ex) {
+                throw new DirectoryDeletedException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 删除目录，失败会抛出异常
+     *
+     * @param string $dir
+     * @param null $context
+     *
+     * @throws DirectoryDeletedException
+     */
+    public static function rmDirEx(string $dir, $context = null)
+    {
+        self::rmDir($dir, $context, true);
+    }
+
+    /**
+     * 删除文件，指定ex参数后失败会抛出异常，否则返回false
+     *
+     * @param string $file
+     * @param null $context
+     * @param bool $ex
+     *
+     * @return bool
+     *
+     * @throws FileRemoveException
+     */
+    public static function rmFile(string $file, $context = null, bool $ex = false)
+    {
+        try {
+            $bool = unlink($file, $context);
+            if (!$bool && $ex) {
+                throw new FileRemoveException(sprintf('Failed to remove "%s" file.', $file));
+            } else {
+                return $bool;
+            }
+        } catch (Throwable $e) {
+            if ($ex) {
+                throw new FileRemoveException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 删除文件，失败会抛出异常
+     *
+     * @param string $file
+     * @param null $context
+     *
+     * @throws FileRemoveException
+     */
+    public static function rmFileEx(string $file, $context = null)
+    {
+        self::rmFile($file, $context, true);
+    }
+
+    /**
+     * 打开文件，指定ex参数后失败会抛出异常，否则返回false
+     *
+     * @param string $file
+     * @param string $mode
+     * @param bool $use_include_path
+     * @param null $context
+     * @param bool $ex
+     *
+     * @return bool|resource
+     *
+     * @throws FileOpenException
+     */
+    public static function open(string $file, string $mode, bool $use_include_path = false, $context = null, bool $ex = false)
+    {
+        try {
+            $res = fopen($file, $mode, $use_include_path, $context);
+            if (!$res && $ex) {
+                throw new FileOpenException(sprintf('Failed to open "%s" file.', $file));
+            } else {
+                return $res;
+            }
+        } catch (Throwable $e) {
+            if ($ex) {
+                throw new FileOpenException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 打开文件，失败会抛出异常
+     *
+     * @param string $file
+     * @param string $mode
+     * @param bool $use_include_path
+     * @param null $context
+     *
+     * @return resource
+     *
+     * @throws FileOpenException
+     */
+    public static function openEx(string $file, string $mode, bool $use_include_path = false, $context = null)
+    {
+        return self::open($file, $mode, $use_include_path, $context, true);
     }
 
 }
