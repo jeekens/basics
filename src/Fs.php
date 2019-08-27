@@ -9,7 +9,6 @@ use Jeekens\Basics\Exception\DirectoryCreatedException;
 use Jeekens\Basics\Exception\DirectoryDeletedException;
 use Jeekens\Basics\Exception\FileOpenException;
 use Jeekens\Basics\Exception\FileRemoveException;
-use RuntimeException;
 use Throwable;
 use function array_filter;
 use function array_pop;
@@ -2016,9 +2015,10 @@ class Fs
      */
     public static function mkDir(string $dir, $mode = 0777, bool $recursive = false, $context = null, bool $ex = false)
     {
+        $args = $context === null ? [$dir, $mode, $recursive] : [$dir, $mode, $recursive, $context];
         try {
             if (!is_dir($dir)) {
-                $bool = mkdir($dir, $mode, $recursive, $context);
+                $bool = mkdir(... $args);
                 if (!$bool && $ex) {
                     throw new DirectoryCreatedException(sprintf('Failed to create "%s" directory.', $dir));
                 } else {
@@ -2064,8 +2064,9 @@ class Fs
      */
     public static function rmDir(string $dir, $context = null, bool $ex = false)
     {
+        $args = $context === null ? [$dir] : [$dir, $context];
         try {
-            $bool = rmdir($dir, $context);
+            $bool = rmdir(... $args);
             if (!$bool && $ex) {
                 throw new DirectoryDeletedException(sprintf('Failed to remove "%s" directory.', $dir));
             } else {
@@ -2106,8 +2107,9 @@ class Fs
      */
     public static function rmFile(string $file, $context = null, bool $ex = false)
     {
+        $args = $context === null ? [$file] : [$file, $context];
         try {
-            $bool = unlink($file, $context);
+            $bool = unlink(... $args);
             if (!$bool && $ex) {
                 throw new FileRemoveException(sprintf('Failed to remove "%s" file.', $file));
             } else {
@@ -2150,8 +2152,10 @@ class Fs
      */
     public static function open(string $file, string $mode, bool $use_include_path = false, $context = null, bool $ex = false)
     {
+        $args = $context === null ? [$file, $mode, $use_include_path] : [$file, $mode, $use_include_path, $context];
+
         try {
-            $res = fopen($file, $mode, $use_include_path, $context);
+            $res = fopen(... $args);
             if (!$res && $ex) {
                 throw new FileOpenException(sprintf('Failed to open "%s" file.', $file));
             } else {
